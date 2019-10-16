@@ -1,274 +1,65 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  <title>Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  <link rel="stylesheet" href="/css/style.css">
-  
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    html,
+    body {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    body {
+      background: #000 url("./lulu.jpeg") no-repeat center center;
+      background-size: auto 100%;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    div {
+      transition: all .5s;
+      background-color: #fff;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-sandbox" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/06/29/sandbox/" class="article-date">
-  <time datetime="2017-06-29T13:29:09.000Z" itemprop="datePublished">2017-06-29</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/06/29/sandbox/">sandbox</a>
-    </h1>
-  
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="浅谈沙盒模式"><a href="#浅谈沙盒模式" class="headerlink" title="浅谈沙盒模式"></a>浅谈沙盒模式</h2><p>市面上现在流行两种沙箱模式,一种是使用iframe,还有一种是直接在页面上使用new Function + eval进行执行. 殊途同归,主要还是防止一些Hacker们 吃饱了没事干,收别人钱来 Hack 你的网站. 一般情况, 我们的代码量有60%业务+40%安全. 剩下的就看天意了.</p>
-<p>接下来,我们来一步一步分析,如果做到在前端的沙箱.文末 看俺有没有心情放一个彩蛋吧.</p>
-<p>直接嵌套<br>这种方式说起来并不是什么特别好的点子,因为需要花费比较多的精力在安全性上.</p>
-<p>eval执行<br>最简单的方式,就是使用eval进行代码的执行</p>
-<p>eval(‘console.log(“asimplescript”);’);<br>但,如果你是直接这么使用的话, congraduations… do die…</p>
-<p>因为,eval 的特性是如果当前域里面没有,则会向上遍历.一直到最顶层的global scope 比如window.以及,他还可以访问closure内的变量.看demo:</p>
-<p>functionAuth(username) { varpassword=”trustno1”; this.eval=function(name){returneval(name)}//相当于直接this.name } auth=newAuth(“Mulder”) console.log(auth.eval(“username”));//willprint”Mulder” console.log(auth.eval(“password”));//willprint”trustno1”<br>那有没有什么办法可以解决eval这个特性呢?</p>
-<p>答: 没有. 除非你不用</p>
-<p>ok,那我就不用. 我们这里就可以使用new Function(..args,bodyStr) 来代替eval.</p>
-<p>new Function<br>new Function就是用来,放回一个function obj的. 用法参考:new Function.</p>
-<p>所以,上面的代码,放在new Function中,可以写为:</p>
-<p>newFunction(‘console.log(“asimplescript”);’)();<br>这样做在安全性上和eval没有多大的差别,不过,他不能访问closure的变量,即通过this来调用,而且他的性能比eval要好很多. 那有没有办法解决global var的办法呢?</p>
-<p>有啊… 只是有点复杂先用with,在用Proxy</p>
-<p>with<br>with这个特性,也算是一个比较鸡肋的,他和eval并列为js两大SB特性. 不说无用, bug还多,安全性就没谁了… 但是, with的套路总是有人喜欢的.在这里,我们就需要使用到他的特性.因为,在with的scope里面,所有的变量都会先从with定义的Obj上查找一遍.</p>
-<p>vara={ c:1 } varc=2; with(a){ console.log(c);//等价于c.a }<br>所以,第一步改写上面的new Function(),将里面变量的获取途径控制在自己的手里.</p>
-<p>functioncompileCode(src){ src=’with(sandbox){‘+src+’}’ returnnewFunction(‘sandbox’,src) }<br>这样,所有的内容多会从sandbox这个str上面获取,但是找不到的var则又会向上进行搜索. 为了解决这个问题,则需要使用: proxy</p>
-<p>proxy<br>es6 提供的Proxy特性,说起来也是蛮牛逼的. 可以将获取对象上的所有方式改写.具体用法可以参考: 超好用的proxy.</p>
-<p>这里,我们只要将has给换掉即可. 有的就好,没有的就返回undefined</p>
-<p>functioncompileCode(src){ src=’with(sandbox){‘+src+’}’ constcode=newFunction(‘sandbox’,src) returnfunction(sandbox){ constsandboxProxy=newProxy(sandbox,{has}) returncode(sandboxProxy) } } //相当于检查获取的变量是否在里面like:’in’ functionhas(target,key){ returntrue } compileCode(‘log(name)’)(console);<br>// 相当于检查 获取的变量是否在里面 like: ‘in’</p>
-<p>Object.keys(Array.prototype[Symbol.unscopables]); //[“copyWithin”,”entries”,”fill”,”find”,”findIndex”, //“includes”,”keys”,”values”]<br>这样的话,就能完美的解决掉 向上查找变量的烦恼了. 另外一些大神,发现在新的ECMA里面,有些方法是不会被with scope 影响的. 这里,主要是通过Symbol.unscopables 这个特性来检测的.比如:</p>
-<p>//还是加一下吧 functioncompileCode(src){ src=’with(sandbox){‘+src+’}’ constcode=newFunction(‘sandbox’,src) returnfunction(sandbox){ constsandboxProxy=newProxy(sandbox,{has,get}) returncode(sandboxProxy) } } functionhas(target,key){ returntrue } functionget(target,key){ //这样,访问Array里面的like,includes之类的方法,就可以保证安全…算了,就当我没说,真的没啥用… if(key===Symbol.unscopables)returnundefined returntarget[key] }<br>现在,基本上就可以宣告你的代码是99.999% 的5位安全数.(反正不是100%就行)</p>
-<p>设置缓存<br>如果上代码,每次编译一次code时,都会实例一次Proxy, 这样做会比较损性能. 所以,我们这里,可以使用closure来进行缓存。 上面生成proxy代码,改写为:</p>
-<p>functioncompileCode(src){ src=’with(sandbox){‘+src+’}’ constcode=newFunction(‘sandbox’,src) functionhas(target,key){ returntrue } functionget(target,key){ if(key===Symbol.unscopables)returnundefined returntarget[key] } return(function(){ var_sandbox,sandboxProxy; returnfunction(sandbox){ if(sandbox!==_sandbox){ _sandbox=sandbox; sandboxProxy=newProxy(sandbox,{has,get}) } returncode(sandboxProxy) } })() }<br>不过上面,这样的缓存机制有个弊端,就是不能存储多个proxy. 不过,你可以使用Array来解决,或者更好的使用Map. 这里,我们两个都不用,用WeakMap来解决这个problem. WeakMap 主要的问题在于,他可以完美的实现,内部变量和外部的内容的统一. WeakMap最大的特点在于,他存储的值是不会被垃圾回收机制关注的. 说白了, WeakMap引用变量的次数是不会算在引用垃圾回收机制里, 而且, 如果WeakMap存储的值在外部被垃圾回收装置回收了,WeakMap里面的值,也会被删除–同步效果.所以,毫无意外, WeakMap是我们最好的一个tricky. 则,代码可以写为:</p>
-<p>constsandboxProxies=newWeakMap() functioncompileCode(src){ src=’with(sandbox){‘+src+’}’ constcode=newFunction(‘sandbox’,src) functionhas(target,key){ returntrue } functionget(target,key){ if(key===Symbol.unscopables)returnundefined returntarget[key] } returnfunction(sandbox){ if(!sandboxProxies.has(sandbox)){ constsandboxProxy=newProxy(sandbox,{has,get}) sandboxProxies.set(sandbox,sandboxProxy) } returncode(sandboxProxies.get(sandbox)) } }<br>差不多了, 如果不嫌写的丑,可以直接拿去用.(如果出事,纯属巧合,本人概不负责).</p>
-<p>接着,我们来看一下,如果使用iframe,来实现代码的编译. 这里,Jsfiddle就是使用这种办法.</p>
-<p>iframe 嵌套<br>最简单的方式就是,使用sandbox属性. 该属性可以说是真正的沙盒… 把sandbox加载iframe里面,那么,你这个iframe基本上就是个标签而已… 而且支持性也挺棒的,比如IE10.</p>
-<p><iframesandboxsrc=”...”><br>这样已添加,那么下面的事,你都不可以做了:</iframesandboxsrc=”...”></p>
-<ol>
-<li><p>script脚本不能执行</p>
-</li>
-<li><p>不能发送ajax请求</p>
-</li>
-<li><p>不能使用本地存储，即localStorage,cookie等</p>
-</li>
-<li><p>不能创建新的弹窗和window, 比如window.open or target=”_blank”</p>
-</li>
-<li><p>不能发送表单</p>
-</li>
-<li><p>不能加载额外插件比如flash等</p>
-</li>
-<li><p>不能执行自动播放的tricky. 比如: autofocused, autoplay</p>
-</li>
-</ol>
-<p>看到这里，我也是醉了。 好好的一个iframe，你这样是不是有点过分了。 不过，你可以放宽一点权限。在sandbox里面进行一些简单设置</p>
-<p><iframesandbox=”allow-same-origin”src=”...”><br>常用的配置项有:</iframesandbox=”allow-same-origin”src=”...”></p>
-<p>配置 效果 allow-forms 允许进行提交表单 allow-scripts 运行执行脚本 allow-same-origin 允许同域请求,比如ajax,storage allow-top-navigation 允许iframe能够主导window.top进行页面跳转 allow-popups 允许iframe中弹出新窗口,比如,window.open,target=”_blank” allow-pointer-lock 在iframe中可以锁定鼠标，主要和鼠标锁定有关<br>可以通过在sandbox里，添加允许进行的权限.</p>
-<p><iframesandbox=”allow-formsallow-same-originallow-scripts”src=”...”><br>这样，就可以保证js脚本的执行，但是禁止iframe里的javascript执行top.location = self.location。 更多详细的内容,请参考: please call me HR.</iframesandbox=”allow-formsallow-same-originallow-scripts”src=”...”></p>
-<p>接下来,我们来具体讲解,如果使用iframe来code evaluation. 里面的原理,还是用到了eval.</p>
-<p>iframe 脚本执行<br>上面说到,我们需要使用eval进行方法的执行,所以,需要在iframe上面添加上, allow-scripts的属性.(当然,你也可以使用new Function, 这个随你…)</p>
-<p>这里的框架是使用postMessage+eval. 一个用来通信,一个用来执行.</p>
-<p>先看代码:</p>
-<p><!--frame.html--> &lt;!DOCTYPEhtml&gt; <html> <head> <title>Evalbox’sFrame</title> <script> window.addEventListener(‘message’,function(e){ //相当于window.top.currentWindow. varmainWindow=e.source; varresult=’’; try{ result=eval(e.data); }catch(e){ result=’eval()threwanexception.’; } //e.origin就是原来window的url mainWindow.postMessage(result,e.origin); }); </script> </head> </html><br>这里顺便插播一下关于postMessage的相关知识点.</p>
-<p>postMessage 讲解<br>postMessage主要做的事情有三个:</p>
-<p>1.页面和其打开的新窗口的数据传递</p>
-<p>2.多窗口之间消息传递</p>
-<p>3.页面与嵌套的iframe消息传递</p>
-<p>具体的格式为</p>
-<p>otherWindow.postMessage(message,targetOrigin,[transfer]);<br>message是传递的信息,targetOrigin指定的窗口内容,transfer取值为Boolean 表示是否可以用来对obj进行序列化,相当于JSON.stringify, 不过一般情况下传obj时,会自己先使用JSON进行seq一遍.</p>
-<p>具体说一下targetOrigin.</p>
-<p>targetOrigin的写入格式一般为URI,即, protocol+host. 另外,也可以写为*. 用来表示 传到任意的标签页中.</p>
-<p>另外,就是接受端的参数.接受传递的信息,一般是使用window监听message事件.<br>本文前端（javascript）相关术语:javascript是什么意思 javascript下载 javascript权威指南 javascript基础教程 javascript 正则表达式 javascript设计模式 javascript高级程序设计 精通javascript javascript教程</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/06/29/sandbox/" data-id="cj4igviq30001lcm48wkg9tju" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-mine-sunshine" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/06/25/mine-sunshine/" class="article-date">
-  <time datetime="2017-06-25T03:10:49.000Z" itemprop="datePublished">2017-06-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/06/25/mine-sunshine/">mine sunshine</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Your-Are-My-Sunshine"><a href="#Your-Are-My-Sunshine" class="headerlink" title="Your Are My Sunshine"></a>Your Are My Sunshine</h2><pre><code>The other night dear as I lay sleeping
-</code></pre><p>　　I dreamed I held you in my arm<br>　　But When I awoke dear I was mistaken<br>　　And I hung my head and cried<br>　　You are my sunshine my only sunshine<br>　　You make me happy when skies are gray<br>　　You’ll never know dear how much I love you<br>　　Please don’t take my sunshine away</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/06/25/mine-sunshine/" data-id="cj4igvipn0000lcm4yfupyzp3" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-
-  
-    
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2017/06/29/sandbox/">sandbox</a>
-          </li>
-        
-          <li>
-            <a href="/2017/06/25/mine-sunshine/">mine sunshine</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2017 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-<script src="/js/script.js"></script>
-
-  </div>
 </body>
+<script>
+  var arr = [];
+  var horizon = 10;
+  var vertical = 6;
+  function createEle() {
+    for (var i = 0; i < horizon * vertical; i++) {
+      var el = document.createElement("div");
+      el.onmouseenter = function () {
+        this.style.backgroundColor = "transparent";
+      }
+      arr.push(el);
+      document.body.appendChild(el);
+    }
+  }
+  function setSize() {
+    var w = document.body.clientWidth / horizon;
+    var h = document.body.clientHeight / vertical;
+    arr.forEach(el => {
+      el.style.width = w + "px";
+      el.style.height = h + "px";
+    })
+    return setSize;
+  }
+  createEle();
+  window.onresize = setSize();
+</script>
+
 </html>
